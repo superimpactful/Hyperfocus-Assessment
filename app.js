@@ -1135,7 +1135,7 @@ function showAreaTransition(area, callback) {
    ───────────────────────────────────────────────────────────── */
 function renderSidebarSteps() {
   const container = document.getElementById('sidebarSteps');
-  if (!container) return;
+  if (!container || !flatQuestions[currentIndex]) return;
   const currentAreaIndex = flatQuestions[currentIndex].areaIndex;
   const qInArea = (currentIndex % 9) + 1;
 
@@ -1185,6 +1185,7 @@ function renderSidebarSteps() {
    ───────────────────────────────────────────────────────────── */
 function renderQuestion(direction = 'forward') {
   const q    = flatQuestions[currentIndex];
+  if (!q) { console.error('No question at index', currentIndex, '— flatQuestions length:', flatQuestions.length); return; }
   const card = document.getElementById('questionCard');
 
   const pct = Math.round(((currentIndex + 1) / TOTAL_QUESTIONS) * 100);
