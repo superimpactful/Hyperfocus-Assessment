@@ -1,0 +1,9 @@
+# Ignore everything
+*
+
+# Except the assessment files
+!index.html
+!style.css
+!app.js
+!LICENSE
+!.gitignore
