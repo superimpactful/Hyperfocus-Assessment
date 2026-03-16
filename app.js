@@ -1284,6 +1284,26 @@ function previousQuestion() {
 }
 
 /* ─────────────────────────────────────────────────────────────
+   KEYBOARD NAVIGATION
+   ───────────────────────────────────────────────────────────── */
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('screen-assessment').classList.contains('active')) return;
+
+  const num = parseInt(e.key);
+  if (num >= 1 && num <= 5) {
+    selectOption(num - 1);
+    return;
+  }
+  if (e.key === 'ArrowRight' || e.key === 'Enter') {
+    nextQuestion();
+    return;
+  }
+  if (e.key === 'ArrowLeft') {
+    previousQuestion();
+  }
+});
+
+/* ─────────────────────────────────────────────────────────────
    EMAIL FORM
    ───────────────────────────────────────────────────────────── */
 document.getElementById('emailForm').addEventListener('submit', e => {
