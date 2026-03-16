@@ -1080,10 +1080,11 @@ const TOTAL_QUESTIONS = flatQuestions.length; // 45
 /* ─────────────────────────────────────────────────────────────
    STATE
    ───────────────────────────────────────────────────────────── */
-let currentIndex  = 0;
-let answers       = new Array(TOTAL_QUESTIONS).fill(null);
-let userEmail     = '';
-let navigatingBack = false;
+let currentIndex    = 0;
+let answers         = new Array(TOTAL_QUESTIONS).fill(null);
+let userEmail       = '';
+let navigatingBack  = false;
+let isTransitioning = false;
 
 /* ─────────────────────────────────────────────────────────────
    SCREEN MANAGEMENT
@@ -1107,6 +1108,7 @@ document.getElementById('btnStart').addEventListener('click', () => {
    AREA TRANSITION
    ───────────────────────────────────────────────────────────── */
 function showAreaTransition(area, callback) {
+  isTransitioning = true;
   const overlay = document.getElementById('areaTransition');
   document.getElementById('transitionIcon').textContent = area.icon;
   document.getElementById('transitionName').textContent = area.name;
@@ -1125,6 +1127,7 @@ function showAreaTransition(area, callback) {
     setTimeout(() => {
       overlay.classList.add('hidden');
       overlay.style.transition = '';
+      isTransitioning = false;
       callback();
     }, 380);
   }, 1500);
@@ -1288,6 +1291,7 @@ function previousQuestion() {
    ───────────────────────────────────────────────────────────── */
 document.addEventListener('keydown', e => {
   if (!document.getElementById('screen-assessment').classList.contains('active')) return;
+  if (isTransitioning) return;
 
   const num = parseInt(e.key);
   if (num >= 1 && num <= 5) {
