@@ -1397,6 +1397,97 @@ function formatAdvice(text) {
 }
 
 /* ─────────────────────────────────────────────────────────────
+   FOCUS AREA ACTIONS
+   ───────────────────────────────────────────────────────────── */
+const FOCUS_ACTIONS = {
+  email: {
+    feelings: {
+      high:   'Review your email habits quarterly to make sure your system keeps up with how your work evolves.',
+      medium: 'Schedule two fixed 20-minute email windows per day — and turn off all other notifications in between.',
+      low:    'Do a one-time inbox clear: archive everything older than 30 days and start fresh today.'
+    },
+    process: {
+      high:   'Audit your filters and auto-rules — remove outdated ones and close any gaps you\'ve been ignoring.',
+      medium: 'Write out your personal email processing rules and apply them consistently for two weeks.',
+      low:    'Set up a simple 3-label system: Action Required, Waiting For, Reference — and use it on every email you touch.'
+    },
+    technology: {
+      high:   'Connect your email to your task manager so actionable emails become tasks automatically.',
+      medium: 'Enable keyboard shortcuts in your email client and practice the five you\'d use most.',
+      low:    'Turn off all email notifications on your phone and computer right now — you check on your schedule, not its.'
+    }
+  },
+  calendar: {
+    feelings: {
+      high:   'Do a quarterly calendar audit — every recurring commitment should still deserve your time.',
+      medium: 'Add a 15-minute weekly planning block on Sunday or Monday morning to own your week before it owns you.',
+      low:    'Do a 30-minute meeting audit: decline or cancel every recurring meeting that doesn\'t have a clear purpose you own.'
+    },
+    process: {
+      high:   'Add a mid-week check-in block to adjust your calendar when reality shifts your priorities.',
+      medium: 'Build a simple weekly template: deep work blocks, meeting windows, and buffer time — then protect it.',
+      low:    'Block two hours of deep work every morning before anyone else can schedule over it.'
+    },
+    technology: {
+      high:   'Integrate your calendar with your task manager so tasks with due dates appear as time blocks automatically.',
+      medium: 'Create distinct color-coded calendars for Work, Personal, and Focus Blocks.',
+      low:    'Set up Google Calendar or equivalent today — every commitment needs to live somewhere visible.'
+    }
+  },
+  tasks: {
+    feelings: {
+      high:   'Review your backlog weekly and honestly archive anything you\'re not realistically going to do.',
+      medium: 'Before you end work today, write down your top 3 tasks for tomorrow — just 3.',
+      low:    'Do a brain dump right now: get every open loop out of your head and into one list.'
+    },
+    process: {
+      high:   'Add a Daily Highlight habit — one task per day that defines a successful day, no matter what else happens.',
+      medium: 'Start a weekly 20-minute review: what got done, what moves forward, and what gets dropped.',
+      low:    'Set up a task inbox and commit to processing it at a fixed time every workday.'
+    },
+    technology: {
+      high:   'Create saved filters for your Now list and Daily Highlight so they\'re one click away at all times.',
+      medium: 'Set up project folders that match your main areas of work and move all your tasks into them.',
+      low:    'Download Todoist or ClickUp today and get your current task list out of your head and into it.'
+    }
+  },
+  notes: {
+    feelings: {
+      high:   'Create a Master Notes index — one page that links to your most important knowledge areas.',
+      medium: 'Identify the one place things most often get lost in your notes system and fix that specific gap.',
+      low:    'Create a single Inbox note and route every new capture there for the next 7 days — no exceptions.'
+    },
+    process: {
+      high:   'Start one Master Note on your most important current topic and commit to updating it weekly.',
+      medium: 'Set a 15-minute notes processing block twice a week to organize what you\'ve captured.',
+      low:    'Pick one note-taking app and archive or delete all others — consolidate everything into one place today.'
+    },
+    technology: {
+      high:   'Set up cross-device capture: phone widget, browser clipper, and desktop shortcut all routing to your Inbox.',
+      medium: 'Add a web clipper to your browser so articles go directly into your notes system instead of open tabs.',
+      low:    'Set up Notion with a simple Inbox database as your single capture point for everything.'
+    }
+  },
+  files: {
+    feelings: {
+      high:   'Do a quarterly archive: move completed projects out of your active folders to keep your workspace clean.',
+      medium: 'Set one rule starting today: every new file gets a descriptive name before it\'s saved — no defaults.',
+      low:    'Spend 30 minutes creating your top-level folder structure: Inbox, Active, Archive, Reference.'
+    },
+    process: {
+      high:   'Set a recurring reminder to archive any project folder untouched for 90+ days.',
+      medium: 'Pick one consistent file naming convention and apply it to everything new going forward.',
+      low:    'Move everything on your desktop into one folder called "Sort This" and process 10 files per day.'
+    },
+    technology: {
+      high:   'Pin your 5 most-accessed folders as favorites in your cloud app for one-click access.',
+      medium: 'Complete the migration: move all active files to cloud storage so nothing important stays local-only.',
+      low:    'Set up Google Drive or Dropbox today and move your 10 most-used files there as a starting point.'
+    }
+  }
+};
+
+/* ─────────────────────────────────────────────────────────────
    REPORT HELPERS
    ───────────────────────────────────────────────────────────── */
 function hexToRgba(hex, alpha) {
@@ -1629,25 +1720,30 @@ function renderResults() {
     const rankEmojis = ['🥇','🥈','🥉'];
     const levelColor = getLevelColor(getLevel(total, MAX_AREA));
     const s = byArea[area.name];
-    const dimSummary = DIMENSIONS.map(dim => {
-      const lv = getLevel(s[dim]);
-      return `${DIM_LABELS[dim].replace(/^\S+\s/, '')}: ${getLevelLabel(lv)}`;
-    }).join(' &nbsp;·&nbsp; ');
+
+    const actionsHtml = DIMENSIONS.map(dim => {
+      const action = FOCUS_ACTIONS[area.adviceKey][dim][getLevel(s[dim])];
+      return `<li>${action}</li>`;
+    }).join('');
 
     const card = document.createElement('div');
     card.className = 'focus-card';
     card.innerHTML = `
-      <div class="focus-rank" style="background:${area.color}15;color:${area.color}">
-        ${rankEmojis[rank]}
-      </div>
-      <div class="focus-info">
+      <div class="focus-card-top">
+        <div class="focus-rank" style="background:${area.color}15;color:${area.color}">
+          ${rankEmojis[rank]}
+        </div>
         <div class="focus-area-name">${area.icon} ${area.name}</div>
-        <div class="focus-area-sub">${dimSummary}</div>
+        <div class="focus-score">
+          <div class="focus-score-num" style="color:${levelColor}">${pct}%</div>
+          <div class="focus-score-max">${total}/${MAX_AREA} pts</div>
+        </div>
       </div>
-      <div class="focus-score">
-        <div class="focus-score-num" style="color:${levelColor}">${pct}%</div>
-        <div class="focus-score-max">${total}/${MAX_AREA} pts</div>
-      </div>
+      <ul class="focus-actions">${actionsHtml}</ul>
+      <a class="focus-cta" href="https://getsuperproductive.com/pressure-points" target="_blank" rel="noopener">
+        Get Support
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
     `;
     focusList.appendChild(card);
   });
