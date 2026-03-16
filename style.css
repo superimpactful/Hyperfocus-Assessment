@@ -1518,20 +1518,15 @@ input  { font-family: 'Karla', inherit; }
   flex-shrink: 0;
 }
 
-/* Report area inner — chart + narrative */
+/* Report area body inner */
 .report-area-inner {
-  display: grid;
-  grid-template-columns: 220px 1fr;
-  gap: 32px;
-  padding: 32px 28px;
-  align-items: start;
+  padding: 28px 28px 0;
 }
 
-.area-chart-wrap {
-  width: 220px;
-  flex-shrink: 0;
-  position: sticky;
-  top: 24px;
+.area-chart-header {
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto 32px;
 }
 
 .area-narrative p {
@@ -1541,19 +1536,52 @@ input  { font-family: 'Karla', inherit; }
   margin-bottom: 16px;
 }
 .area-narrative p:last-child { margin-bottom: 0; }
-.area-narrative p + p { }
+
+/* HyperFocus Suggestions callout */
+.hf-suggestions {
+  margin-top: 32px;
+  padding: 20px 24px 24px;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,0.07);
+  border-left-width: 4px;
+  background: #f9f8ff;
+}
+
+.hf-suggestions-heading {
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-bottom: 14px;
+}
+
+.hf-suggestions-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hf-suggestions-list li {
+  padding-left: 22px;
+  position: relative;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: var(--text-main);
+}
+
+.hf-suggestions-list li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  font-weight: 700;
+}
 
 @media (max-width: 700px) {
   .report-area-inner {
-    grid-template-columns: 1fr;
-    gap: 24px;
-    padding: 24px 20px;
-  }
-  .area-chart-wrap {
-    width: 100%;
-    max-width: 260px;
-    margin: 0 auto;
-    position: static;
+    padding: 20px 20px 0;
   }
 }
 

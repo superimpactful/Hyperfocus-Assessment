@@ -1614,6 +1614,12 @@ function renderResults() {
       return paragraphs.map(p => `<p>${p.replace(/\*([^*]+)\*/g, '<em>$1</em>')}</p>`).join('');
     }).join('');
 
+    // HyperFocus Suggestions — one action per dimension grouped at the end
+    const suggestionsHtml = DIMENSIONS.map(dim => {
+      const action = FOCUS_ACTIONS[area.adviceKey][dim][getLevel(areaScores[dim])];
+      return `<li>${action}</li>`;
+    }).join('');
+
     // Chart config captured per area for lazy creation
     const chartConfig = {
       type: 'radar',
@@ -1677,10 +1683,14 @@ function renderResults() {
       </div>
       <div class="report-area-body">
         <div class="report-area-inner">
-          <div class="area-chart-wrap">
+          <div class="area-chart-header">
             <canvas id="area-chart-${areaIdx}"></canvas>
           </div>
           <div class="area-narrative">${narrativeHtml}</div>
+          <div class="hf-suggestions" style="border-left-color:${area.color}">
+            <div class="hf-suggestions-heading" style="color:${area.color}">HyperFocus Suggestions</div>
+            <ul class="hf-suggestions-list">${suggestionsHtml}</ul>
+          </div>
         </div>
       </div>
     `;
