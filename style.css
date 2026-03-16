@@ -1463,10 +1463,30 @@ input  { font-family: 'Karla', inherit; }
   align-items: center;
   gap: 16px;
   padding: 24px 28px;
-  border-bottom: 1px solid var(--border);
   background: var(--surface-2);
   flex-wrap: wrap;
+  cursor: pointer;
+  user-select: none;
+  transition: background var(--t);
 }
+.report-area-header:hover { background: var(--surface-3); }
+
+/* Chevron */
+.area-chevron {
+  margin-left: auto;
+  flex-shrink: 0;
+  color: var(--text-dim);
+  transition: transform 0.35s ease;
+}
+.report-area.open .area-chevron { transform: rotate(180deg); }
+
+/* Accordion body */
+.report-area-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.report-area.open .report-area-body { max-height: 4000px; }
 
 .report-area-icon { font-size: 1.8rem; flex-shrink: 0; }
 
@@ -1499,47 +1519,44 @@ input  { font-family: 'Karla', inherit; }
   flex-shrink: 0;
 }
 
-/* Report dimension blocks */
-.report-dim {
-  padding: 28px 28px 0;
-  border-bottom: 1px solid var(--border);
-}
-.report-dim:last-child {
-  border-bottom: none;
-  padding-bottom: 28px;
-}
-
-.report-dim-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 18px;
-  gap: 12px;
-  flex-wrap: wrap;
+/* Report area inner — chart + narrative */
+.report-area-inner {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 32px;
+  padding: 32px 28px;
+  align-items: start;
 }
 
-.report-dim-name {
-  font-size: 1rem;
-  font-weight: 700;
-  font-family: 'Rubik', sans-serif;
-}
-
-.report-dim-score {
-  font-size: 0.9rem;
-  font-weight: 700;
-  padding: 4px 12px;
-  border-radius: 100px;
-  white-space: nowrap;
+.area-chart-wrap {
+  width: 220px;
   flex-shrink: 0;
+  position: sticky;
+  top: 24px;
 }
 
-.report-dim-body p {
+.area-narrative p {
   color: var(--text-muted);
   font-size: 1rem;
-  line-height: 1.75;
-  margin-bottom: 14px;
+  line-height: 1.8;
+  margin-bottom: 16px;
 }
-.report-dim-body p:last-child { margin-bottom: 0; }
+.area-narrative p:last-child { margin-bottom: 0; }
+.area-narrative p + p { }
+
+@media (max-width: 700px) {
+  .report-area-inner {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding: 24px 20px;
+  }
+  .area-chart-wrap {
+    width: 100%;
+    max-width: 260px;
+    margin: 0 auto;
+    position: static;
+  }
+}
 
 .area-insight-card {
   background: var(--surface);

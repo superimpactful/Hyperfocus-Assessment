@@ -1380,7 +1380,7 @@ function getLevelColor(level) {
 }
 
 function getLevelLabel(level) {
-  return { high: 'Strong', medium: 'Growing', low: 'Needs Focus' }[level];
+  return { high: 'On Track', medium: 'Review & Improve', low: 'At Risk' }[level];
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -1395,6 +1395,44 @@ function formatAdvice(text) {
     })
     .join('');
 }
+
+/* ─────────────────────────────────────────────────────────────
+   REPORT HELPERS
+   ───────────────────────────────────────────────────────────── */
+function hexToRgba(hex, alpha) {
+  const r = parseInt(hex.slice(1,3), 16);
+  const g = parseInt(hex.slice(3,5), 16);
+  const b = parseInt(hex.slice(5,7), 16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+let areaChartInstances = {};
+
+const TRANSITION_NAMES = {
+  email:    'email',
+  calendar: 'your calendar',
+  tasks:    'task management',
+  notes:    'your notes system',
+  files:    'file management'
+};
+
+const TRANSITIONS = {
+  feelings: {
+    high:   n => `Your emotional relationship with ${n} is a genuine asset.`,
+    medium: n => `When it comes to how ${n} feels day-to-day, your experience is mixed — and worth unpacking.`,
+    low:    n => `How you feel about ${n} is the right place to start, because that discomfort isn't random.`
+  },
+  process: {
+    high:   n => `On the process side, your approach to ${n} is working.`,
+    medium: n => `When it comes to your ${n} process, there's a real opportunity to build something more consistent.`,
+    low:    n => `The way you currently handle ${n} day-to-day is where most of the friction is coming from.`
+  },
+  technology: {
+    high:   n => `The tools you use for ${n} are well-configured and doing their job.`,
+    medium: n => `The technology you're using for ${n} is a step in the right direction, but could be working harder for you.`,
+    low:    n => `The technology side of ${n} isn't fully supporting you yet — and the right setup would change that.`
+  }
+};
 
 /* ─────────────────────────────────────────────────────────────
    RESULTS RENDERING
@@ -1457,9 +1495,14 @@ function renderResults() {
   // ── Radar chart ───────────────────────────────────────────
   renderRadarChart(byArea, MAX_AREA);
 
-  // ── Area report — full advice per dimension ────────────────
+  // ── Area report — accordion with triangle chart + woven narrative ──
+  Object.values(areaChartInstances).forEach(c => c.destroy());
+  areaChartInstances = {};
+
   const insightsGrid = document.getElementById('areaInsights');
   insightsGrid.innerHTML = '';
+
+  const chevronSvg = `<svg class="area-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>`;
 
   AREAS.forEach((area, areaIdx) => {
     const areaScores = byArea[area.name];
@@ -1468,25 +1511,60 @@ function renderResults() {
     const areaLevel  = getLevel(areaTotal, MAX_AREA);
     const levelColor = getLevelColor(areaLevel);
     const levelLabel = getLevelLabel(areaLevel);
+    const tName      = TRANSITION_NAMES[area.adviceKey];
 
-    const dimsHtml = DIMENSIONS.map(dim => {
+    // Woven narrative — transition sentence prepended to each dimension's advice
+    const narrativeHtml = DIMENSIONS.map(dim => {
       const dimScore = areaScores[dim];
       const dimLevel = getLevel(dimScore);
-      const dimColor = DIM_COLORS[dim];
-      const adviceHtml = formatAdvice(ADVICE[area.adviceKey][dim][dimLevel]);
-
-      return `
-        <div class="report-dim">
-          <div class="report-dim-header">
-            <span class="report-dim-name" style="color:${dimColor}">${DIM_LABELS[dim]}</span>
-            <span class="report-dim-score" style="background:${dimColor}15;color:${dimColor};border:1px solid ${dimColor}35">
-              ${dimScore}/15 &nbsp;·&nbsp; ${getLevelLabel(dimLevel)}
-            </span>
-          </div>
-          <div class="report-dim-body">${adviceHtml}</div>
-        </div>
-      `;
+      const intro    = TRANSITIONS[dim][dimLevel](tName);
+      const paragraphs = ADVICE[area.adviceKey][dim][dimLevel].split('\n\n');
+      paragraphs[0] = intro + ' ' + paragraphs[0];
+      return paragraphs.map(p => `<p>${p.replace(/\*([^*]+)\*/g, '<em>$1</em>')}</p>`).join('');
     }).join('');
+
+    // Chart config captured per area for lazy creation
+    const chartConfig = {
+      type: 'radar',
+      data: {
+        labels: [
+          ['💭 Feelings', getLevelLabel(getLevel(areaScores.feelings))],
+          ['⚙️ Process',  getLevelLabel(getLevel(areaScores.process))],
+          ['🔧 Technology', getLevelLabel(getLevel(areaScores.technology))]
+        ],
+        datasets: [{
+          data: [areaScores.feelings, areaScores.process, areaScores.technology],
+          backgroundColor: hexToRgba(area.color, 0.1),
+          borderColor: area.color,
+          borderWidth: 2,
+          pointBackgroundColor: area.color,
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2,
+          pointRadius: 5,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        scales: {
+          r: {
+            min: 0, max: 15,
+            ticks: { display: false },
+            grid: { color: 'rgba(0,0,0,0.07)' },
+            angleLines: { color: 'rgba(0,0,0,0.07)' },
+            pointLabels: {
+              font: { size: 11, family: 'Karla', weight: '600' },
+              color: ctx => {
+                const scores = [areaScores.feelings, areaScores.process, areaScores.technology];
+                return getLevelColor(getLevel(scores[ctx.index]));
+              }
+            }
+          }
+        },
+        plugins: { legend: { display: false }, tooltip: { enabled: false } },
+        animation: { duration: 600 }
+      }
+    };
 
     const section = document.createElement('div');
     section.className = 'report-area';
@@ -1504,9 +1582,30 @@ function renderResults() {
         <span class="report-level-badge" style="background:${levelColor}15;color:${levelColor};border:1px solid ${levelColor}35">
           ${levelLabel}
         </span>
+        ${chevronSvg}
       </div>
-      ${dimsHtml}
+      <div class="report-area-body">
+        <div class="report-area-inner">
+          <div class="area-chart-wrap">
+            <canvas id="area-chart-${areaIdx}"></canvas>
+          </div>
+          <div class="area-narrative">${narrativeHtml}</div>
+        </div>
+      </div>
     `;
+
+    // Accordion toggle — lazy chart creation on first open
+    section.querySelector('.report-area-header').addEventListener('click', () => {
+      const isOpen = section.classList.contains('open');
+      section.classList.toggle('open');
+      if (!isOpen && !areaChartInstances[areaIdx]) {
+        setTimeout(() => {
+          const canvas = document.getElementById(`area-chart-${areaIdx}`);
+          if (canvas) areaChartInstances[areaIdx] = new Chart(canvas.getContext('2d'), chartConfig);
+        }, 50);
+      }
+    });
+
     insightsGrid.appendChild(section);
   });
 
