@@ -1192,9 +1192,6 @@ function renderQuestion(direction = 'forward') {
   document.getElementById('progressText').textContent = `Question ${currentIndex + 1} of ${TOTAL_QUESTIONS}`;
   document.getElementById('progressPct').textContent = pct + '%';
 
-  const areaBadge = document.getElementById('areaBadge');
-  areaBadge.textContent = q.areaName;
-  areaBadge.style.background = q.areaColor;
 
   renderSidebarSteps();
 
