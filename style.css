@@ -718,11 +718,11 @@ input  { font-family: 'Karla', inherit; }
 }
 
 .assessment-sidebar {
-  width: 260px;
+  width: 300px;
   flex-shrink: 0;
   background: var(--surface);
   border-right: 1px solid var(--border);
-  padding: 40px 24px 40px 28px;
+  padding: 40px 28px 40px 32px;
   position: sticky;
   top: 0;
   height: 100vh;
@@ -761,12 +761,12 @@ input  { font-family: 'Karla', inherit; }
   flex-direction: column;
   align-items: center;
   flex-shrink: 0;
-  width: 22px;
+  width: 28px;
 }
 
 .step-dot {
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -774,6 +774,11 @@ input  { font-family: 'Karla', inherit; }
   flex-shrink: 0;
   font-size: 0.9rem;
   transition: all var(--t);
+}
+
+.sidebar-step.active .step-dot {
+  width: 28px;
+  height: 28px;
 }
 
 .sidebar-step.upcoming .step-dot {
@@ -825,7 +830,7 @@ input  { font-family: 'Karla', inherit; }
 .step-icon-sm { font-size: 0.9rem; line-height: 1.4; }
 
 .step-name {
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 600;
   line-height: 1.35;
   font-family: 'Rubik', sans-serif;
